@@ -1,0 +1,19 @@
+{
+  "name": "evidencia-ga7-220501096-aa5-ev01",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "body-parser": "^2.4.0",
+    "express": "^4.22.3",
+    "mongoose": "^9.11.4",
+    "nodemon": "^3.1.14"
+  }
+}

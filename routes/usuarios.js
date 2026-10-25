@@ -1,82 +1,30 @@
 // Importamos express para poder crear el enrutador
 const express = require('express');
 
-// Importamos crypto (viene incluido en Node.js) para proteger las contraseñas
-const crypto = require('crypto');
+// Clase que define las rutas de usuarios y las asocia al controlador
+class RutasUsuario {
+    // ATRIBUTOS PRIVADOS: el enrutador de Express y el controlador que atiende las rutas
+    #router;
+    #controlador;
 
-// Importamos el modelo Usuario para guardar y buscar usuarios en la BD
-const Usuario = require('../models/Usuario');
-
-// Creamos el enrutador: una "miniaplicación" que agrupa las rutas de usuarios
-const router = express.Router();
-
-// RUTA DE REGISTRO: POST /usuarios/registro
-router.post('/registro', async (req, res) => {
-    try {
-        // Sacamos usuario y contraseña del cuerpo de la petición
-        const { usuario, contrasena } = req.body;
-
-        // Validamos que ambos datos lleguen y sean texto
-        if (typeof usuario !== 'string' || typeof contrasena !== 'string' || !usuario || !contrasena) {
-            return res.status(400).json({ mensaje: 'Debe enviar usuario y contraseña' });
-        }
-
-        // Buscamos si ya existe un usuario con ese nombre
-        const existe = await Usuario.findOne({ usuario: usuario });
-        if (existe) {
-            return res.status(409).json({ mensaje: 'El usuario ya existe' });
-        }
-
-        // Protegemos la contraseña: sal aleatoria + hash (scrypt)
-        const sal = crypto.randomBytes(16).toString('hex');
-        const hash = crypto.scryptSync(contrasena, sal, 64).toString('hex');
-
-        // Creamos el usuario guardando la sal y el hash, nunca la contraseña real
-        const nuevoUsuario = new Usuario({ usuario: usuario, contrasena: sal + ':' + hash });
-        await nuevoUsuario.save();
-
-        res.status(201).json({ mensaje: 'Usuario registrado correctamente' });
-    } catch (error) {
-        res.status(500).json({ mensaje: 'Error en el registro', error: error.message });
+    // El constructor recibe el controlador desde afuera (inyección de dependencias)
+    constructor(controlador) {
+        this.#controlador = controlador;
+        this.#router = express.Router();
+        this.#configurarRutas();
     }
-});
 
-// RUTA DE LOGIN: POST /usuarios/login
-router.post('/login', async (req, res) => {
-    try {
-        // Sacamos usuario y contraseña del cuerpo de la petición
-        const { usuario, contrasena } = req.body;
-
-        // Si los datos no llegan o no son texto, la autenticación falla
-        if (typeof usuario !== 'string' || typeof contrasena !== 'string') {
-            return res.status(401).json({ mensaje: 'Error en la autenticación' });
-        }
-
-        // Buscamos el usuario en la base de datos
-        const usuarioEncontrado = await Usuario.findOne({ usuario: usuario });
-        if (!usuarioEncontrado) {
-            return res.status(401).json({ mensaje: 'Error en la autenticación' });
-        }
-
-        // Separamos la sal y el hash que guardamos al registrar
-        const [sal, hashGuardado] = usuarioEncontrado.contrasena.split(':');
-
-        // Repetimos el cálculo con la contraseña recibida y la misma sal
-        const hashIntento = crypto.scryptSync(contrasena, sal, 64);
-
-        // Comparamos ambos hashes; si no coinciden, la contraseña es incorrecta
-        const coincide = crypto.timingSafeEqual(Buffer.from(hashGuardado, 'hex'), hashIntento);
-        if (!coincide) {
-            return res.status(401).json({ mensaje: 'Error en la autenticación' });
-        }
-
-        // Todo correcto: autenticación satisfactoria
-        res.status(200).json({ mensaje: 'Autenticación satisfactoria' });
-    } catch (error) {
-        res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
+    // MÉTODO PRIVADO: asocia cada dirección con un método del controlador
+    #configurarRutas() {
+        this.#router.post('/registro', this.#controlador.registrar);
+        this.#router.post('/login', this.#controlador.iniciarSesion);
     }
-});
 
-// Exportamos el enrutador para usarlo en app.js
-module.exports = router;
+    // MÉTODO PÚBLICO: entrega el enrutador para conectarlo a la aplicación
+    obtenerRouter() {
+        return this.#router;
+    }
+}
 
+// Exportamos la clase para usarla en otros archivos
+module.exports = RutasUsuario;

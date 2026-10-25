@@ -41,6 +41,42 @@ router.post('/registro', async (req, res) => {
     }
 });
 
+// RUTA DE LOGIN: POST /usuarios/login
+router.post('/login', async (req, res) => {
+    try {
+        // Sacamos usuario y contraseña del cuerpo de la petición
+        const { usuario, contrasena } = req.body;
+
+        // Si los datos no llegan o no son texto, la autenticación falla
+        if (typeof usuario !== 'string' || typeof contrasena !== 'string') {
+            return res.status(401).json({ mensaje: 'Error en la autenticación' });
+        }
+
+        // Buscamos el usuario en la base de datos
+        const usuarioEncontrado = await Usuario.findOne({ usuario: usuario });
+        if (!usuarioEncontrado) {
+            return res.status(401).json({ mensaje: 'Error en la autenticación' });
+        }
+
+        // Separamos la sal y el hash que guardamos al registrar
+        const [sal, hashGuardado] = usuarioEncontrado.contrasena.split(':');
+
+        // Repetimos el cálculo con la contraseña recibida y la misma sal
+        const hashIntento = crypto.scryptSync(contrasena, sal, 64);
+
+        // Comparamos ambos hashes; si no coinciden, la contraseña es incorrecta
+        const coincide = crypto.timingSafeEqual(Buffer.from(hashGuardado, 'hex'), hashIntento);
+        if (!coincide) {
+            return res.status(401).json({ mensaje: 'Error en la autenticación' });
+        }
+
+        // Todo correcto: autenticación satisfactoria
+        res.status(200).json({ mensaje: 'Autenticación satisfactoria' });
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
+    }
+});
+
 // Exportamos el enrutador para usarlo en app.js
 module.exports = router;
 

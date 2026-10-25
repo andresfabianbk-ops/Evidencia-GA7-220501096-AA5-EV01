@@ -7,8 +7,20 @@ const express = require('express');
 // Importamos mongoose para conectarnos a la base de datos MongoDB
 const mongoose = require('mongoose');
 
+// Importamos body-parser para leer el cuerpo (body) de las peticiones POST
+const bodyParser = require('body-parser');
+
 // Creamos la aplicación (el servidor) ejecutando express
 const app = express();
+
+// Llamamos al body-parser para convertir el cuerpo de las peticiones a JSON
+app.use(bodyParser.json());
+
+// Importamos las rutas de usuarios
+const rutasUsuarios = require('./routes/usuarios');
+
+// Todas las rutas de ese archivo empezarán con /usuarios
+app.use('/usuarios', rutasUsuarios);
 
 // SE CREAN LAS RUTAS
 // Ruta por defecto, a manera de prueba

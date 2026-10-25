@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de sesión</title>
+    <!-- Hoja de estilos de la página -->
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+    <!-- MODAL DE INICIO DE SESIÓN -->
+    <dialog id="modalLogin">
+        <form id="formularioLogin">
+            <h2>Iniciar sesión</h2>
+
+            <label for="loginUsuario">Usuario</label>
+            <input type="text" id="loginUsuario" name="usuario" required autocomplete="username">
+
+            <label for="loginContrasena">Contraseña</label>
+            <input type="password" id="loginContrasena" name="contrasena" required autocomplete="current-password">
+
+            <!-- Aquí se mostrará el resultado del intento de login -->
+            <p id="mensajeLogin" class="mensaje" role="status"></p>
+
+            <button type="submit">Entrar</button>
+
+            <!-- Enlace que abre el modal de registro -->
+            <p class="texto-enlace">¿No tienes cuenta? <a href="#" id="enlaceRegistro">Regístrate</a></p>
+        </form>
+    </dialog>
+
+    <!-- MODAL DE REGISTRO DE USUARIO -->
+    <dialog id="modalRegistro">
+        <form id="formularioRegistro">
+            <h2>Crear cuenta</h2>
+
+            <label for="registroUsuario">Usuario</label>
+            <input type="text" id="registroUsuario" name="usuario" required autocomplete="username">
+
+            <label for="registroContrasena">Contraseña</label>
+            <input type="password" id="registroContrasena" name="contrasena" required autocomplete="new-password">
+
+            <!-- Aquí se mostrará el resultado del registro -->
+            <p id="mensajeRegistro" class="mensaje" role="status"></p>
+
+            <button type="submit">Registrarme</button>
+
+            <!-- Enlace que vuelve al modal de inicio de sesión -->
+            <p class="texto-enlace">¿Ya tienes cuenta? <a href="#" id="enlaceLogin">Inicia sesión</a></p>
+        </form>
+    </dialog>
+
+    <!-- Scripts de la interfaz: el orden importa, Aplicacion.js usa las otras dos clases -->
+    <script src="js/ApiUsuarios.js"></script>
+    <script src="js/Modal.js"></script>
+    <script src="js/Aplicacion.js"></script>
+</body>
+</html>

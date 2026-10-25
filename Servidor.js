@@ -26,6 +26,8 @@ class Servidor {
     #configurarMiddlewares() {
         // Convierte el cuerpo de las peticiones POST a JSON
         this.#app.use(bodyParser.json());
+        // Entrega los archivos de la carpeta public (HTML, CSS y JavaScript de la interfaz)
+        this.#app.use(express.static('public'));
     }
 
     // MÉTODO PRIVADO: crea los objetos, los conecta entre sí y registra las rutas
